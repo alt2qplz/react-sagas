@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import {useRef} from "react";
+import {connect} from "react-redux";
+import {fetchPostsAC, newMessageAC} from "./redux/appReducer";
 
-function App() {
+const App = props => {
+  const inputRef = useRef(null)
+
+  const buttonClickHandler = () => {
+    if (inputRef.current.value.trim()) {
+      props.newMessageAC(inputRef.current.value.trim())
+    }
+    inputRef.current.value = ''
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <p>
+        {props.text}
+      </p>
+      <input type='text' ref={inputRef}/>
+      <button onClick={buttonClickHandler}>
+        click
+      </button>
+      <button onClick={() => {props.fetchPostsAC()}}>Fetch</button>
+      {props.posts
+        ? props.posts.map(p => <div key={p.id}>
+          <p>
+            {p.title}
+          </p>
+        </div>)
+        : null
+      }
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    text: state.app.text,
+    posts: state.app.posts
+  }
+}
+
+const mapDispatchToProps = {
+  newMessageAC,
+  fetchPostsAC
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
